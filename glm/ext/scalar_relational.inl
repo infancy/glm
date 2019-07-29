@@ -27,9 +27,11 @@ namespace glm
 		if(a.negative() != b.negative())
 		{
 			// Check for equality to make sure +0==-0
+			// 感觉逻辑有点绕, 往强行相等的方向想
 			return a.mantissa() == b.mantissa() && a.exponent() == b.exponent();
 		}
 
+		// 这个 ULPs 是什么来着?
 		// Find the difference in ULPs.
 		typename detail::float_t<genType>::int_type const DiffULPs = abs(a.i - b.i);
 		return DiffULPs <= MaxULPs;
