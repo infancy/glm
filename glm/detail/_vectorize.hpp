@@ -3,7 +3,12 @@
 namespace glm{
 namespace detail
 {
-	template<template<length_t L, typename T, qualifier Q> class vec, length_t L, typename R, typename T, qualifier Q>
+	template<
+		template<length_t L, typename T, qualifier Q> class vec, 
+		length_t L, 
+		typename R, 
+		typename T, 
+		qualifier Q>
 	struct functor1{};
 
 	template<template<length_t L, typename T, qualifier Q> class vec, typename R, typename T, qualifier Q>

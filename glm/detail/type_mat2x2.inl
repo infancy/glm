@@ -501,6 +501,7 @@ namespace glm
 			scalar / m[1]);
 	}
 
+	// fancy
 	template<typename T, qualifier Q>
 	GLM_FUNC_QUALIFIER typename mat<2, 2, T, Q>::col_type operator/(mat<2, 2, T, Q> const& m, typename mat<2, 2, T, Q>::row_type const& v)
 	{

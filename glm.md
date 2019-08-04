@@ -6,20 +6,6 @@ hpp + inc, 相当于**声明+实现**
 
 每个 hpp 的开头会写这个文件提供的功能
 
-- common.hpp: 很多常用的标量, 向量函数: abs, sign, floor, ceil, mod, min, max, clamp...实现在 "detail/func_common.inl", "detail/func_common_simd.inl", "simd/common.h" 里
-- exponential：pow, exp, log, exp2, log2, sqrt, inversesqrt
-- ext：所有 ext/ 的文件
-- fwd：一大堆 typedef
-- geometric：length、distance、dot、cross、normalize、faceforward、reflect、refract
-- glm：包含了 /glm 下的所有头文件
-- integer：bit 相关
-- mat*x*：包含 ext/matrix_float*x*.hpp, ext/matrix_float*x*_precision.hpp
-- matrix：transpose, determinant, inverse
-- packing：看不懂
-- trigonometric：radians、degrees、sin、cos……
-- vec*：like mat*x*
-- vector_relational：>=, <=, any, all
-
 ## api 
 
 */glm/doc/api/index.html
@@ -32,7 +18,8 @@ qualifier：精度, low、medium、high；aligned；storage；
 	
 	typedef qualifier precision;
 	
-	通过 vec<...>::typename detail::storage<1, T, detail::is_aligned<Q>::value>::type data; 来控制对齐, 这与精度无关
+	通过 vec<...>::typename detail::storage<1, T, detail::is_aligned<Q>::value>::type data; 
+	来控制对齐, 这与精度无关
 	template<typename T>
 	struct storage<3, T, true>
 	{
@@ -49,15 +36,27 @@ qualifier：精度, low、medium、high；aligned；storage；
 		typedef glm_f32vec4 type;
 	};
 	
-关于 glm 的精度：https://stackoverflow.com/questions/25592975/glm-precision-qualifier 
-, OpenGL 和 glm 的精度都没什么用, 只是为了兼容 OpenGL ES, 和精度相关的代码都可以跳过.
+关于 glm 的精度：https://stackoverflow.com/questions/25592975/glm-precision-qualifier , 
+OpenGL 和 glm 的精度都没什么用, 只是为了兼容 OpenGL ES, 和精度相关的代码都可以跳过.
 
 
 
 # GLM/
 
-fwd: 类型定义
-glm: 包含 GLM/ 下的大部分头文件
+- common: 很多常用的标量, 向量函数: abs, sign, floor, ceil, mod, min, max, clamp...实现在 "detail/func_common.inl", "detail/func_common_simd.inl", "simd/common.h" 里
+- exponential：pow, exp, log, exp2, log2, sqrt, inversesqrt
+- ext：包含 ext/ 下的所有文件
+- fwd：一大堆类型定义
+- geometric：length、distance、dot、cross、normalize、faceforward、reflect、refract
+- glm：包含了 glm/ 下的大部分头文件
+- integer：bit 相关
+- mat*x*：包含 ext/matrix_float*x*.hpp, ext/matrix_float*x*_precision.hpp
+- matrix：transpose, determinant, inverse
+- packing:
+  - packUnorm2x16: 把两个 float 压缩到 short, 再放入 uint 里
+- trigonometric：三角函数, radians、degrees、sin、cos……
+- vec*：like mat*x*
+- vector_relational：>=, <=, any, all, not
 
 
 
@@ -74,43 +73,155 @@ mat2, mat3, mat4 比别的矩阵多一些方法, 但 fay 里为了统一没有�
 \_features: C++特性的提案, 开关宏
 \_fixes: 取消 cmath 定义的一些宏
 \_noise: 噪声发生器
-\_swizzle_func: 实现 swizzle 的一些宏
-\_swizzle: 实现 swizzle 的一些类型
-\_vectorize：传入 function<...> 和 vec, 简化了实现
+\_swizzle_func: 实现 swizzle 的一些宏, 使得允许 vec3().xyz() 的操作
+\_swizzle: 实现 swizzle 的一些类型, 使得允许 vec3().xyz 的操作
+\_vectorize：传入 function 和 vec, 将 vec 的每个元素应用到 function, 简化了实现
+
+compute_common: compute_abs
+compute_vector_relational
 
 glm: 一大堆类型的前向声明
 setup.hpp：一些通过宏定义设置配置的技巧, 值得借鉴
-qualifier:
+qualifier: 
+	不需要关注 highp/mediump/lowp
+	开启 GLM_HAS_ALIGNOF 后, 会对类似 vec3 的类型做对齐
+	开启 GLM_ARCH & SSE2 后, 替换实际存储类型为 __m128 等
+	genTypeEnum, genTypeTrait, init_gentype
 
-## compute_*/func_*
+## /func_*(_simd).inl
 
-compute_common
-compute_vector_relational
+glm/ 下同名头文件(不包含 func_ 前缀)的具体实现
 
-func_common_simd:
-func_common:
-func_exponential_simd:
-func_exponential:
-func_geometric:
-func_integer:
-func_matrix:
-func_packing:
-func_trigonometric:
-func_vector_relational: any, all, not
+func_common
+func_exponential
+func_geometric
+func_integer
+func_matrix
+func_packing
+func_trigonometric
+func_vector_relational
+
+## type_float
+
+type_float: union float_t<float>, union float_t<double>, union float_t<vec3> 提取指数和尾数, cool~
+type_half: float 和 short 的互转(C++ 标准中的提案: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1467r1.html)
 
 ## type_*
 
-type_float: union float_t<float>, union float_t<double>, union float_t<vec3> 提取指数和尾数, cool~
-type_half: 
+```C++
+struct math_type
+{
+	// typedef xxx yyy;
 
-type_quat
-type_vec
+	// #if GLM_SILENT_WARNINGS ...
+
+	// data
+	// union { ... }
+
+	// #endif GLM_SILENT_WARNINGS ...
+
+	// functions
+}
+```
+
+### type_quat
+
+
+### type_vector_n
+
+```C++
+struct math_type
+{
+	// typedef xxx yyy;
+
+	// #if GLM_SILENT_WARNINGS ...
+
+	// data
+	// union { ... }
+
+	// #endif GLM_SILENT_WARNINGS ...
+
+	
+	// length
+	// operator[]
+
+	// 包含隐式, 显式, 截断的构造函数
+
+	// operator=, T&U
+
+	// operator+=, -=, *=, /=, vec1&scalar
+
+	// operator++, --
+
+	// operator%=, &=, |=, ^=, <<=, >>=
+}
+
+// operator+, -, ~, unary
+
+// operator+, -, *, /, %, &, |, ^, <<, >>, binary
+
+// operator==, !=, &&, ||
+```
+
+只有 vec4 有 simd 版本
+看实现和测试代码可能比看声明更容易搞懂在干什么
+
+#### type_vec4.inl
+
+开头 namespace detail 里一大堆的 compute_vec4_operator 简化操作, 并允许特化版本<\del如果作者愿意用宏的话, 还可以再简化一层\del>
+
+但目前这种啰嗦的写法, 让读(懂)代码方便了很多
+
+构造函数占了四百多行
+
+先实现类内的函数, 剩下的函数基本通过 return vec<4, T, Q>(0) OP= v; 实现
+
+如果开启了 GLM_CONFIG_SIMD, 就引入 type_vec4_simd.inl
+
+#### type_vec4_simd.inl
+
+- 对 type_vec4.inl 中 namespace detail 里一大堆的 compute_vec4_operator 的特化实现
+- simd 版本的构造函数
+
 
 ### type_matrix_m_n
 
-基本操作:
+```C++
+struct math_type
+{
+	// typedef xxx yyy;
 
-mat2/3/4:
+	// data
+	
+	// length
+	// operator[]
+
+	// 构造函数
+
+	// conversions
+
+	// operator=, T&U
+
+	// operator+=, -=, mat&scalar
+	// operator*=, /=, scalar
+
+	// operator++, --
+}
+
+// operator+, -, unary
+
+// 括号内为 matNxN 版本才有的函数
+
+// operator+, -, scalar(, mat)
+
+// operator*, scalar, row/col_type, mat_type
+
+// operator/, scalar(, row/col_type, mat_type)
+
+// operator==, !=
+```
+
+type_matrix_m_n 的实现基本没看头
 
 
 
@@ -180,6 +291,12 @@ vector_ulp: prev_float, next_float ... float_distance
 
 # GLM/GTC 推荐拓展
 
+mask:
+color_space: linear/sRGB
+integer: log2, iround, uround
+matrix_inverse: affineInverse, inverseTranspose
+noise: perlin, simplex
+quaternion: roll, pitch, yaw
 ulp: prev_float_n, next_float_n ... float_distance
 
 

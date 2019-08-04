@@ -121,6 +121,7 @@ namespace glm
 			: value{col_type(x1, y1, z1, w1), col_type(x2, y2, z2, w2), col_type(x3, y3, z3, w3), col_type(x4, y4, z4, w4)}
 #		endif
 	{
+		// iec559(IEEE 754) standard
 		GLM_STATIC_ASSERT(std::numeric_limits<X1>::is_iec559 || std::numeric_limits<X1>::is_integer || GLM_CONFIG_UNRESTRICTED_GENTYPE, "*mat4x4 constructor only takes float and integer types, 1st parameter type invalid.");
 		GLM_STATIC_ASSERT(std::numeric_limits<Y1>::is_iec559 || std::numeric_limits<Y1>::is_integer || GLM_CONFIG_UNRESTRICTED_GENTYPE, "*mat4x4 constructor only takes float and integer types, 2nd parameter type invalid.");
 		GLM_STATIC_ASSERT(std::numeric_limits<Z1>::is_iec559 || std::numeric_limits<Z1>::is_integer || GLM_CONFIG_UNRESTRICTED_GENTYPE, "*mat4x4 constructor only takes float and integer types, 3rd parameter type invalid.");
@@ -558,6 +559,7 @@ namespace glm
 		return typename mat<4, 4, T, Q>::col_type(a2);
 */
 
+		//fancy???
 		typename mat<4, 4, T, Q>::col_type const Mov0(v[0]);
 		typename mat<4, 4, T, Q>::col_type const Mov1(v[1]);
 		typename mat<4, 4, T, Q>::col_type const Mul0 = m[0] * Mov0;
